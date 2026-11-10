@@ -123,6 +123,12 @@ export const handler=async(req,res)=>{
       const rows=(await all('SELECT id,kind,title,message,section,created_at AS createdAt,read_at AS readAt FROM notifications WHERE recipient_id=? ORDER BY id DESC LIMIT 100', [user.id]));
       return send(res,200,{items:rows,unreadCount});
     }
+    if(method==='PATCH' && url.pathname==='/api/notifications') {
+      const b=await body(req),now=new Date().toISOString();
+      if(b.all===true) (await run("UPDATE notifications SET read_at=? WHERE recipient_id=? AND read_at=''", [now,user.id]));
+      else if(Array.isArray(b.ids)&&b.ids.length){const ids=[...new Set(b.ids.map(Number).filter(Number.isInteger))].slice(0,100);if(ids.length){const marks=ids.map(()=>'?').join(',');(await run(`UPDATE notifications SET read_at=? WHERE recipient_id=? AND read_at='' AND id IN (${marks})`, [now,user.id,...ids]));}}
+      return send(res,200,{ok:true});
+    }
     if(method==='POST' && url.pathname==='/api/notifications/read') {
       const b=await body(req),now=new Date().toISOString();
       if(b.all===true) (await run("UPDATE notifications SET read_at=? WHERE recipient_id=? AND read_at=''", [now,user.id]));
