@@ -77,7 +77,7 @@ Changes to Vercel environment variables require a new deployment. Vercel can hos
 
 - `index.html` — application markup
 - `app.css` — styles
-- `app.js` — browser behavior and API requests
+- `client.js` — browser behavior and API requests
 - `server.mjs` — HTTP server, sign-in, and MySQL-backed JSON API
 - `server.ts` — Vercel entry point for the existing server
 - `migrate-sqlite-to-mysql.mjs` — one-time migration of the existing local database

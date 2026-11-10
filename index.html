@@ -789,6 +789,6 @@
     </div>
     <div class="modal-back" id="supportModal" onclick="if(event.target===this)closeSupportModal()"><div class="modal"><div class="modal-head"><div><h3>Contact store support</h3><div style="font-size:10px;color:#999;margin-top:5px">Your request will be visible to the administrator.</div></div><button class="close" type="button" onclick="closeSupportModal()">×</button></div><form id="supportForm"><div class="field" style="margin-bottom:13px"><label for="supportSubject">Subject</label><input id="supportSubject" required maxlength="150" placeholder="What do you need help with?"></div><div class="field" style="margin-bottom:13px"><label for="supportCategory">Topic</label><select id="supportCategory"><option>Inventory</option><option>Stock issue</option><option>Account access</option><option>Other</option></select></div><div class="field"><label for="supportMessage">Question or details</label><textarea id="supportMessage" required maxlength="5000" rows="5" placeholder="Describe your question or issue..."></textarea></div><div class="form-actions"><button class="primary" type="submit">Send request</button><button class="secondary" type="button" onclick="closeSupportModal()">Cancel</button></div></form></div></div>
     <div class="toast" id="toast"></div>
-    <script src="app.js"></script>
+    <script src="client.js"></script>
   </body>
 </html>
