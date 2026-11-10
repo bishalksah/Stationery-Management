@@ -17,6 +17,19 @@ let profile = { name: "", username: "", photo: "", role: "staff" };
         "Lab Manuals",
         "Art & Craft",
       ];
+      const categoryIcons = {
+        Notebooks: "📓", Pens: "🖊️", Pencils: "✏️", "Paper / Files": "📁",
+        "Office Supplies": "📄", "Drawing Tools": "📐", "Lab Manuals": "📗", "Art & Craft": "🎨",
+      };
+      // Some legacy MySQL rows contain question marks where their original
+      // emoji and middle-dot separators were lost. Keep those rows legible.
+      function itemIcon(item) {
+        const saved = String(item.icon || "");
+        return !saved || /\?{2,}/u.test(saved) ? (categoryIcons[item.category] || "📦") : saved;
+      }
+      function displayBrand(brand) {
+        return String(brand || "").replace(/\?{2,}/g, "·");
+      }
       const today = new Date();
       function applyTheme(theme){
         const mode=theme==="night"?"night":"day";
@@ -426,7 +439,7 @@ let profile = { name: "", username: "", photo: "", role: "staff" };
         let html = a
           .map(
             (i) =>
-              `<tr class="${status(i) === "low" ? "low-row" : status(i) === "out" ? "out-row" : ""}"><td class="id">${esc(i.id)}</td><td><div class="item-cell"><span class="item-icon">${i.icon || "📦"}</span><div><div class="item-name">${esc(i.name)}</div><div class="item-brand">${esc(i.brand)}</div></div></div></td><td>${esc(i.category)}</td><td class="qty">${fmt(i.qty)} <span class="unit">units</span></td><td>₹${fmt(i.price)}</td><td>${fmt(i.threshold)} units</td><td><span class="badge ${status(i)}">${status(i) === "in" ? "In stock" : status(i) === "low" ? "Low stock" : "Out of stock"}</span></td><td>${canManage()?`<div class="actions"><button class="act" title="Edit" onclick="editItem('${i.id}')">✎</button><button class="act" title="Issue" onclick="quickIssue('${i.id}')">↗</button><button class="act" title="Delete" onclick="deleteItem('${i.id}')">⌫</button></div>`:"Read only"}</td></tr>`,
+              `<tr class="${status(i) === "low" ? "low-row" : status(i) === "out" ? "out-row" : ""}"><td class="id">${esc(i.id)}</td><td><div class="item-cell"><span class="item-icon">${esc(itemIcon(i))}</span><div><div class="item-name">${esc(i.name)}</div><div class="item-brand">${esc(displayBrand(i.brand))}</div></div></div></td><td>${esc(i.category)}</td><td class="qty">${fmt(i.qty)} <span class="unit">units</span></td><td>₹${fmt(i.price)}</td><td>${fmt(i.threshold)} units</td><td><span class="badge ${status(i)}">${status(i) === "in" ? "In stock" : status(i) === "low" ? "Low stock" : "Out of stock"}</span></td><td>${canManage()?`<div class="actions"><button class="act" title="Edit" onclick="editItem('${i.id}')">✎</button><button class="act" title="Issue" onclick="quickIssue('${i.id}')">↗</button><button class="act" title="Delete" onclick="deleteItem('${i.id}')">⌫</button></div>`:"Read only"}</td></tr>`,
           )
           .join("");
         document.getElementById("inventoryRows").innerHTML =
