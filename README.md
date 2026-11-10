@@ -62,7 +62,7 @@ For access by other devices, deploy the app and MySQL on trusted hosting, use a 
 
 ## Deploy to Vercel
 
-This project uses a Node.js server and MySQL; it is not a static-only site. Vercel detects the root `server.ts` entry point and runs the existing `server.mjs` implementation.
+This project uses a Node.js server and MySQL; it is not a static-only site. Vercel detects the root `server.ts` entry point and runs the existing `server.mjs` implementation. `vercel.json` includes the static page assets in the server deployment because the server reads them from disk.
 
 1. **Back up MySQL.** Export the current MySQL database and keep the backup outside the repository. Do not rely on the older SQLite file as the latest backup.
 2. **Create a hosted MySQL database.** The database must be reachable from Vercel over TLS or the provider's supported secure connection method. Import the MySQL export into it. Do not use `127.0.0.1` or `localhost` for `MYSQL_HOST` in Vercel.

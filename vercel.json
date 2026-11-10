@@ -1,0 +1,14 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "functions": {
+    "server.ts": {
+      "includeFiles": [
+        "index.html",
+        "app.css",
+        "client.js",
+        "quest-logo.webp"
+      ]
+    }
+  }
+}
