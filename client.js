@@ -495,6 +495,13 @@ let profile = { name: "", username: "", photo: "", role: "staff" };
           )
           .join("");
         if (old) s.value = old;
+        syncIssueLimit();
+      }
+      function syncIssueLimit() {
+        const form=document.getElementById("issueForm"),item=items.find(i=>i.id===form?.elements.namedItem("item")?.value),quantity=form?.elements.namedItem("quantity");
+        if(!quantity)return;
+        if(item){quantity.max=String(item.qty);if(Number(quantity.value)>item.qty)quantity.value=String(item.qty);}
+        else quantity.removeAttribute("max");
       }
       function openModal(id) {
         let i = items.find((x) => x.id === id),
@@ -522,11 +529,15 @@ let profile = { name: "", username: "", photo: "", role: "staff" };
         catch(error){toast(error.message);}
       }
       async function quickIssue(id) {
-        let item=items.find(x=>x.id===id);if(!item||!item.qty){toast("This item is out of stock.");return;}
-        let quantity=Number(prompt(`How many ${item.name} would you like to issue? (Available: ${item.qty})`,"1"));
-        if(!Number.isInteger(quantity)||quantity<1||quantity>item.qty){toast("Enter a valid quantity within available stock.");return;}
-        try { await api("/api/transactions",{method:"POST",body:JSON.stringify({itemId:id,quantity,person:"Store counter"})});await reloadData();toast(`${quantity} ${item.name} issued successfully.`); }
-        catch(error){toast(error.message);}
+        const item=items.find(x=>x.id===id);
+        if(!item||!item.qty){toast("This item is out of stock.");return;}
+        document.querySelector('.nav button[data-page="transactions"]')?.click();
+        const itemSelect=document.getElementById("issueItem");
+        if(itemSelect){itemSelect.value=id;itemSelect.dispatchEvent(new Event("change",{bubbles:true}));}
+        const issueForm=document.getElementById("issueForm");
+        issueForm?.scrollIntoView({behavior:"smooth",block:"center"});
+        issueForm?.elements.namedItem("person")?.focus({preventScroll:true});
+        toast(`Enter the recipient and quantity for ${item.name}.`);
       }
       function sortByQty() {
         sortDesc = !sortDesc;
@@ -554,6 +565,7 @@ let profile = { name: "", username: "", photo: "", role: "staff" };
         try{await api("/api/transactions",{method:"POST",body:JSON.stringify({itemId:item.id,quantity,person:f.get("person"),institution:f.get("institution")})});await reloadData();form.reset();form.elements.issuedBy.value=profile.name;toast(`${quantity} ${item.name} issued successfully.`);}
         catch(error){toast(error.message);}
       });
+      document.getElementById("issueItem").addEventListener("change",syncIssueLimit);
       ["search", "categoryFilter", "statusFilter"].forEach((id) =>
         document
           .getElementById(id)
