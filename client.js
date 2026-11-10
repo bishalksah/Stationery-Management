@@ -60,7 +60,7 @@ let profile = { name: "", username: "", photo: "", role: "staff" };
         let result = {};
         try { result = await response.json(); } catch {}
         if (!response.ok) throw new Error(result.error || `Request failed (${response.status}).`);
-        if (options.method && options.method !== "GET" && path !== "/api/logout" && path !== "/api/notifications/read") {
+        if (options.method && options.method !== "GET" && path !== "/api/logout" && path !== "/api/notifications") {
           loadNotifications({ silent: true });
         }
         return result;
@@ -368,8 +368,8 @@ let profile = { name: "", username: "", photo: "", role: "staff" };
         const symbols={inventory:"▤",issue:"↗",support:"?",requisition:"▣",account:"●",activity:"•"};
         feed.innerHTML=notifications.map(n=>`<button type="button" class="notification-entry ${n.readAt?"":"unread"}" data-notification-id="${n.id}" data-section="${esc(n.section)}"><span class="notification-kind ${esc(n.kind)}">${symbols[n.kind]||"•"}</span><span class="notification-copy"><b>${esc(n.title)}</b><small>${esc(n.message)}</small><time>${new Date(n.createdAt).toLocaleString("en-IN",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"})}</time></span>${n.readAt?"":'<i class="notification-unread-dot"></i>'}</button>`).join("");
       }
-      async function markAllNotifications(){try{await api("/api/notifications/read",{method:"POST",body:JSON.stringify({all:true})});await loadNotifications({silent:true});}catch(error){toast(error.message);}}
-      async function openNotification(id,section){try{await api("/api/notifications/read",{method:"POST",body:JSON.stringify({ids:[Number(id)]})});await loadNotifications({silent:true});document.getElementById("alertPanel").classList.remove("open");document.querySelector('[aria-label="Notifications"]').setAttribute("aria-expanded","false");const allowed=["dashboard","inventory","transactions","requisitions","support","reports"];const button=document.querySelector(`.nav button[data-page="${allowed.includes(section)?section:"dashboard"}"]`);button?.click();}catch(error){toast(error.message);}}
+      async function markAllNotifications(){try{await api("/api/notifications",{method:"PATCH",body:JSON.stringify({all:true})});await loadNotifications({silent:true});}catch(error){toast(error.message);}}
+      async function openNotification(id,section){try{await api("/api/notifications",{method:"PATCH",body:JSON.stringify({ids:[Number(id)]})});await loadNotifications({silent:true});document.getElementById("alertPanel").classList.remove("open");document.querySelector('[aria-label="Notifications"]').setAttribute("aria-expanded","false");const allowed=["dashboard","inventory","transactions","requisitions","support","reports"];const button=document.querySelector(`.nav button[data-page="${allowed.includes(section)?section:"dashboard"}"]`);button?.click();}catch(error){toast(error.message);}}
       function startNotificationPolling(){if(notificationTimer)clearInterval(notificationTimer);loadNotifications({silent:true});notificationTimer=setInterval(()=>loadNotifications({silent:true}),12000);}
       document.getElementById("notificationFeed").addEventListener("click",event=>{const button=event.target.closest("[data-notification-id]");if(button)openNotification(button.dataset.notificationId,button.dataset.section);});
       function openAlertItem(id) {
