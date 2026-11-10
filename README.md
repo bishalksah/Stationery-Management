@@ -60,12 +60,26 @@ Other environment variables:
 
 For access by other devices, deploy the app and MySQL on trusted hosting, use a database network allowlist, and put the app behind HTTPS. A hosted database must allow connections from the app host.
 
+## Deploy to Vercel
+
+This project uses a Node.js server and MySQL; it is not a static-only site. Vercel detects the root `server.ts` entry point and runs the existing `server.mjs` implementation.
+
+1. **Back up MySQL.** Export the current MySQL database and keep the backup outside the repository. Do not rely on the older SQLite file as the latest backup.
+2. **Create a hosted MySQL database.** The database must be reachable from Vercel over TLS or the provider's supported secure connection method. Import the MySQL export into it. Do not use `127.0.0.1` or `localhost` for `MYSQL_HOST` in Vercel.
+3. **Push this repository to GitHub.** Ensure `.env` and database backups are not committed. `.gitignore` excludes `.env` and the old SQLite files.
+4. **Import the repository in Vercel.** Choose **Add New → Project**, connect GitHub, and select this repository. Its root directory is the repository root. The project has no build step; keep the framework setting as **Other** if Vercel asks.
+5. **Set environment variables** in the Vercel project under **Settings → Environment Variables** for Production (and Preview if needed): `MYSQL_HOST`, `MYSQL_PORT`, `MYSQL_USER`, `MYSQL_PASSWORD`, `MYSQL_DATABASE`, `MYSQL_CONNECTION_LIMIT`, `SESSION_HOURS`, and `NODE_ENV=production`. Use the provider's connection details; never commit production credentials.
+6. **Deploy and verify.** After deployment, open the generated URL, complete the first administrator setup if the imported database has no users, sign in, and confirm inventory and other records are present. Check Vercel logs and database network/TLS settings if requests fail.
+
+Changes to Vercel environment variables require a new deployment. Vercel can host the app, but the database remains with the MySQL provider; Vercel does not copy or persist a local database automatically.
+
 ## Project files
 
 - `index.html` — application markup
 - `app.css` — styles
 - `app.js` — browser behavior and API requests
 - `server.mjs` — HTTP server, sign-in, and MySQL-backed JSON API
+- `server.ts` — Vercel entry point for the existing server
 - `migrate-sqlite-to-mysql.mjs` — one-time migration of the existing local database
 - `data/` — existing SQLite file retained as a migration source/backup (excluded from source control)
 - `quest-logo.webp` — Quest Group logo

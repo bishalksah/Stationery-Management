@@ -4,3 +4,4 @@ data/*.sqlite
 data/*.sqlite-shm
 data/*.sqlite-wal
 .env
+stationery_management_backup.sql
