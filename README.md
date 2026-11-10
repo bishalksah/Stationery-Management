@@ -62,7 +62,7 @@ For access by other devices, deploy the app and MySQL on trusted hosting, use a 
 
 ## Deploy to Vercel
 
-This project uses a Node.js server and MySQL; it is not a static-only site. Vercel detects the root `server.ts` entry point and runs the existing `server.mjs` implementation. `vercel.json` includes the static page assets in the server deployment because the server reads them from disk.
+This project serves its static page from the repository root and routes `/api/*` requests to a Node.js function in `api/[...path].mjs`. That function imports the shared MySQL-backed request handler from `server-backend.mjs`. The ordinary `npm start` command still runs the same handler as a local HTTP server.
 
 1. **Back up MySQL.** Export the current MySQL database and keep the backup outside the repository. Do not rely on the older SQLite file as the latest backup.
 2. **Create a hosted MySQL database.** The database must be reachable from Vercel over TLS or the provider's supported secure connection method. Import the MySQL export into it. Do not use `127.0.0.1` or `localhost` for `MYSQL_HOST` in Vercel.
@@ -75,11 +75,9 @@ Changes to Vercel environment variables require a new deployment. Vercel can hos
 
 ## Project files
 
-- `index.html` — application markup
-- `app.css` — styles
-- `client.js` — browser behavior and API requests
-- `server.mjs` — HTTP server, sign-in, and MySQL-backed JSON API
-- `server.ts` — Vercel entry point for the existing server
+- `index.html`, `app.css`, `client.js`, and `quest-logo.webp` — static application files served from the root
+- `api/[...path].mjs` — Vercel API route
+- `server-backend.mjs` — local HTTP server and shared MySQL-backed API handler
 - `migrate-sqlite-to-mysql.mjs` — one-time migration of the existing local database
 - `data/` — existing SQLite file retained as a migration source/backup (excluded from source control)
 - `quest-logo.webp` — Quest Group logo

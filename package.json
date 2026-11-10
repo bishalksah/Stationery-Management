@@ -7,8 +7,8 @@
     "node": "24.x"
   },
   "scripts": {
-    "start": "node server.mjs",
-    "dev": "node --watch server.mjs",
+    "start": "node server-backend.mjs",
+    "dev": "node --watch server-backend.mjs",
     "migrate:sqlite": "node migrate-sqlite-to-mysql.mjs"
   },
   "dependencies": {

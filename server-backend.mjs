@@ -96,7 +96,7 @@ async function createSession(userId,res) { const token=randomBytes(32).toString(
 async function passwordHash(password,salt=randomBytes(16).toString('hex')) { const digest=await scrypt(password,salt,64); return {salt,hash:Buffer.from(digest).toString('hex')}; }
 function sameHash(a,b) { const aa=Buffer.from(a,'hex'),bb=Buffer.from(b,'hex'); return aa.length===bb.length&&timingSafeEqual(aa,bb); }
 function transactionDto(row) { const date=new Date(row.issued_at); return {id:row.id,itemId:row.item_id,name:row.item_name,person:row.person,qty:row.quantity,issuedBy:row.issued_by,when:row.issued_at,dateKey:date.toDateString(),detail:`Issued to ${row.person||'Store'} by ${row.issued_by} · ${date.toLocaleDateString('en-IN')} ${date.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}`}; }
-const server=createServer(async(req,res)=>{
+export const handler=async(req,res)=>{
   const url=new URL(req.url,'http://localhost'); const method=req.method||'GET';
   if(method==='GET' && url.pathname==='/api/health') return send(res,200,{ok:true,database:'mysql'});
   if(method==='GET' && url.pathname==='/api/session') { const currentUser=await sessionUser(req); return send(res,200,{authenticated:!!currentUser,needsSetup:Number((await one('SELECT COUNT(*) c FROM users', [])).c)===0,user:currentUser}); }
@@ -154,8 +154,9 @@ const server=createServer(async(req,res)=>{
     if(method==='POST' && url.pathname==='/api/users' && user.role==='admin') { const b=await body(req),name=validText(b.name,'Name',120),username=validText(b.username,'Username',60),password=validText(b.password,'Password',200),role=['admin','staff','viewer','department'].includes(b.role)?b.role:'staff',department=String(b.department||'').trim().slice(0,120); if(password.length<10)return send(res,400,{error:'Use at least 10 characters.'});const p=await passwordHash(password);try{const r=(await run('INSERT INTO users(name,username,password_salt,password_hash,role,department) VALUES(?,?,?,?,?,?)', [name,username,p.salt,p.hash,role,department]));const id=Number(r.lastInsertRowid);await createNotification({userIds:[id],roles:['admin'],kind:'account',title:'Account created',message:`${user.name} created a ${role} account for ${name}.`,section:'dashboard'});return send(res,201,{id,name,username,role,department})}catch(err){if(String(err).includes('UNIQUE'))return send(res,409,{error:'That username is already in use.'});throw err;} }
     return send(res,404,{error:'API route not found.'});
   } catch(err) { console.error(`${method} ${url.pathname}`,err); const message=err.status?err.message:(!isProduction&&err.message?err.message:'The server could not complete that request.'); return send(res,err.status||500,{error:message}); }
-});
-const port=Number(process.env.PORT||3000);server.listen(port,process.env.HOST||(isProduction?'0.0.0.0':'127.0.0.1'),()=>console.log(`Quest Stationery Portal running at http://localhost:${port}`));
+};
+const directRun=process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url);
+if(directRun){const port=Number(process.env.PORT||3000);createServer(handler).listen(port,process.env.HOST||(isProduction?'0.0.0.0':'127.0.0.1'),()=>console.log(`Quest Stationery Portal running at http://localhost:${port}`));}
 
 
 
