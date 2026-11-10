@@ -1,0 +1,17 @@
+{
+  "name": "quest-stationery-portal",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "scripts": {
+    "start": "node server.mjs",
+    "dev": "node --watch server.mjs",
+    "migrate:sqlite": "node migrate-sqlite-to-mysql.mjs"
+  },
+  "dependencies": {
+    "mysql2": "^3.24.6"
+  }
+}
