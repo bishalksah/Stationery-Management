@@ -518,7 +518,7 @@ let profile = { name: "", username: "", photo: "", role: "staff" };
       async function deleteItem(id) {
         let item=items.find(i=>i.id===id); if(!item)return;
         if(!confirm(`Delete ${item.name} from inventory?`))return;
-        try { await api(`/api/items/${encodeURIComponent(id)}`,{method:"DELETE"}); await reloadData(); toast("Item removed from inventory."); }
+        try { await api("/api/items",{method:"DELETE",body:JSON.stringify({id})}); await reloadData(); toast("Item removed from inventory."); }
         catch(error){toast(error.message);}
       }
       async function quickIssue(id) {
@@ -536,7 +536,7 @@ let profile = { name: "", username: "", photo: "", role: "staff" };
         e.preventDefault(); const form=e.currentTarget, f=new FormData(form), id=form.dataset.edit;
         const iconMap={Notebooks:"📓",Pens:"🖊️",Pencils:"✏️","Paper / Files":"📁","Office Supplies":"📄","Drawing Tools":"📐","Lab Manuals":"📗","Art & Craft":"🎨"};
         const payload={name:f.get("name").trim(),brand:f.get("brand")||"Quest Group",category:f.get("category"),qty:+f.get("qty"),price:+f.get("price"),threshold:+f.get("threshold"),vendor:f.get("vendor"),entryDate:f.get("date"),icon:items.find(i=>i.id===id)?.icon||iconMap[f.get("category")]||"📦"};
-        try { await api(id?`/api/items/${encodeURIComponent(id)}`:"/api/items",{method:id?"PUT":"POST",body:JSON.stringify(payload)});await reloadData();closeModal();toast(id?"Inventory item updated.":"New item added to inventory."); }
+        try { await api("/api/items",{method:id?"PUT":"POST",body:JSON.stringify(id?{...payload,id}:payload)});await reloadData();closeModal();toast(id?"Inventory item updated.":"New item added to inventory."); }
         catch(error){toast(error.message);}
       });
       document.getElementById("addForm").innerHTML =
