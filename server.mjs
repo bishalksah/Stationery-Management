@@ -12,7 +12,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const publicDir = __dirname;
 if (existsSync(path.join(__dirname, '.env'))) process.loadEnvFile(path.join(__dirname, '.env'));
 const pool = mysql.createPool({
-  host: process.env.MYSQL_HOST || '127.0.0.1',
+  host: (process.env.MYSQL_HOST || '127.0.0.1').trim(),
   port: Number(process.env.MYSQL_PORT || 3306),
   user: process.env.MYSQL_USER || 'root',
   password: process.env.MYSQL_PASSWORD || '',
